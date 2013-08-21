@@ -3,6 +3,14 @@ SudokuJS
 
 A sudoku solver and generation library for javascript.
 
+Installation
+============
+<ul>
+<li>Download the sudoku.js or sudoku.min.js file in the lib folder.</li>
+<li>Copy the file in your web directory.</li>
+<li>Include it in HTML file with &lt;script src="path/to/sudoku.min.js"&gt;&lt;/script&gt;.</li>
+</ul>
+
 How to Use
 ==========
 
