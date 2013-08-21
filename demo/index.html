@@ -3,8 +3,65 @@
 <html>
     <head>
         <title>SudokuJS Usage Example</title>
+        <link rel="stylesheet" href="style.css">
     </head>
     
     <body>
+        <table class="sudoku-board">
+            <script>
+                for(var i = 0; i < 3; i++){ 
+                    document.write('<tr>'); 
+                    
+                    for(var j = 0; j < 3; j++){
+                        document.write('<td><table class="sudoku-block">');
+                        
+                        for(var k = 0; k < 3; k++){
+                            document.write('<tr>');
+                        
+                            for(var l = 0; l < 3; l++){
+                                var id = (i * 27) + (k * 9) + (j * 3) + l;
+                                document.write('<td class="sudoku-cell"><input id="cell' + id + '" type="number" max="9" min="1" /></td>');
+                            }
+                            
+                            document.write('</tr>');
+                        }
+                        
+                        document.write('</table></td>');
+                    }
+                    
+                    document.write('</tr>');
+                }
+            </script>
+        </table>
+        
+        <div class="option">
+            <p>
+                <fieldset>
+                    <legend>Start new game (select difficulty)</legend>
+                    
+                    <button id="blank" type="button">Blank</button>
+                    <button id="easiest" type="button">Easiest</button>
+                    <button id="easy" type="button">Easy</button>
+                    <button id="normal" type="button">Normal</button>
+                    <button id="hard" type="button">Hard</button>
+                    <button id="hardest" type="button">Hardest</button>
+                </fieldset>
+            </p>
+
+            <p>
+                <fieldset>
+                    <legend>Action</legend>
+
+
+                    <button id="clear" type="button">Clear</button>
+                    <button id="submit" type="button">Submit Answer</button>
+                    <button id="solve" type="button">Solve</button>
+                </fieldset>
+            </p>
+        </div>
+        
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+        <script src="../lib/sudoku.min.js"></script>
+        <script src="main.js"></script>
     </body>
 </html>
