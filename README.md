@@ -6,7 +6,7 @@ A sudoku solver and generation library for javascript.
 Installation
 ============
 <ul>
-<li>Download the sudoku.js or sudoku.min.js file in the lib folder.</li>
+<li>Download the sudoku.js or sudoku.min.js file from the src folder.</li>
 <li>Copy the file into your web directory.</li>
 <li>Include it in your HTML file with <code>&lt;script src="path/to/sudoku.min.js"&gt;&lt;/script&gt;</code></li>
 <li>Now you are ready to use the library.</li>
