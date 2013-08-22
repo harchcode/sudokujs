@@ -170,6 +170,63 @@ Sudoku.Board.prototype.isConflict = function(test){
 	return false;
 }
 
+Sudoku.Board.prototype.swapCell = function(index1, index2){
+	var tmp = this.cells[index1].value;
+
+	this.cells[index1].value = this.cells[index2].value;
+	this.cells[index2].value = tmp;
+
+	if(this.cells[index1].value == 0){
+		this.givens[index1] = null;
+	}else{
+		this.givens[index1] = this.cells[index1].value;
+	}
+
+	if(this.cells[index2].value == 0){
+		this.givens[index2] = null;
+	}else{
+		this.givens[index2] = this.cells[index2].value;
+	}
+}
+
+/**
+ * Do an equivalent propagation to the board by swapping 2 columns of blocks.
+ * @param {number} index1 - Index of column of blocks to be swapped (0 - 2).
+ * @param {number} index1 - Index of column of blocks to be swapped (0 - 2).
+ */
+Sudoku.Board.prototype.columnBlockPropagation = function(index1, index2){
+	var id1 = index1 * 3;
+	var id2 = index2 * 3;
+
+	for(var i = 0; i < 9; i++){
+		for(var j = 0; j < 3; j++){
+			this.swapCell(id1, id2);
+
+			id1++;
+			id2++;
+		}
+		id1 += 6;
+		id2 += 6;
+	}
+}
+
+/**
+ * Do an equivalent propagation to the board by swapping 2 rows of blocks.
+ * @param {number} index1 - Index of row of blocks to be swapped (0 - 2).
+ * @param {number} index1 - Index of row of blocks to be swapped (0 - 2).
+ */
+Sudoku.Board.prototype.rowBlockPropagation = function(index1, index2){
+	var id1 = index1 * 27;
+	var id2 = index2 * 27;
+
+	for(var i = 0; i < 27; i++){
+		this.swapCell(id1, id2);
+
+		id1++;
+		id2++;
+	}
+}
+
 /**
  * Generate a random integer between 2 numbers.
  * @param {number} min - The lowest possible value.
@@ -178,6 +235,48 @@ Sudoku.Board.prototype.isConflict = function(test){
  */
 Sudoku.rand = function(min, max){
 	return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+/**
+ * Generate a terminal pattern.
+ * @param {Sudoku.Board} board - The board to be generated.
+ */
+Sudoku.generateTerminalPattern = function(board){
+	board.clear(true);
+
+	var test = [];
+	var c = 0;
+
+	for(var i = 0; i < 81; i++){
+		test[i] = [];
+		for(var j = 1; j <= 9; j++){
+			test[i].push(j);
+		}
+	}
+
+	do{
+		if(test[c].length != 0){
+			var x = Sudoku.rand(0, test[c].length - 1);
+			var y = test[c][x];
+			var tmp = new Sudoku.Cell(c, y);
+
+			if(!board.isConflict(tmp)){
+				board.cells[c] = tmp;
+				test[c].splice(x, 1);
+				c += 1;
+			}else{
+				test[c].splice(x, 1);
+			}
+		}else{
+			for(var i = 1; i <= 9; i++){
+				test[c].push(i);
+			}
+
+			c -= 1;
+
+			board.cells[c] = new Sudoku.Cell();
+		}
+	}while(c < 81);
 }
 
 /**
@@ -236,13 +335,67 @@ Sudoku.solve = function(board){
 }
 
 /**
+ * Same as solve, but this function always return the same solution even if there are more than one solution.
+ * @param {Sudoku.Board} board - The board to be solved.
+ */
+Sudoku.quickSolve = function(board){
+	board.clear();
+
+	var test = [];
+	var c = 0;
+
+	for(var i = 0; i < 81; i++){
+		test[i] = [];
+		for(var j = 1; j <= 9; j++){
+			test[i].push(j);
+		}
+	}
+
+	do{
+		if(board.givens[c]){
+			c += 1;
+			continue;
+		}
+
+		if(test[c].length != 0){
+			var x = test[c].length - 1;
+			var y = test[c][x];
+			var tmp = new Sudoku.Cell(c, y);
+
+			if(!board.isConflict(tmp)){
+				board.cells[c] = tmp;
+				test[c].pop();
+				c += 1;
+			}else{
+				test[c].pop();
+			}
+		}else{
+			for(var i = 1; i <= 9; i++){
+				test[c].push(i);
+			}
+
+			c -= 1;
+			while(board.givens[c]){
+				c -= 1;
+			}
+			board.cells[c] = new Sudoku.Cell();
+		}
+
+		if(c < 0){
+			return false;
+		}
+	}while(c < 81);	
+
+	return true;
+}
+
+/**
  * Generate a Sudoku puzzle. This function will modify the board.
  * @param {Sudoku.Board} board - The board to be generated.
  * @param {string} difficulty - 'easiest', 'easy', 'normal', 'hard', or 'hardest'.
  */
 Sudoku.generate = function(board, difficulty){
-	board.clear(true);
-	Sudoku.solve(board);
+	Sudoku.generateTerminalPattern(board);
 
 	for(var i = 0; i < 81; i++){
 		board.givens[i] = board.cells[i].value;
@@ -268,7 +421,7 @@ Sudoku.generate = function(board, difficulty){
 
 	switch(difficulty){
 		case 'easiest':
-			totalGivens = Sudoku.rand(50, 70);
+			totalGivens = Sudoku.rand(50, 55);
 			maxEmpty = 4;
 			break;
 		case 'easy':
@@ -284,20 +437,27 @@ Sudoku.generate = function(board, difficulty){
 			maxEmpty = 7;
 			break;
 		case 'hardest':
-			totalGivens = Sudoku.rand(22, 27);
+			totalGivens = 22;
 			maxEmpty = 9;
 			break;
 	}
-	var st = new Date();
 
 	while(cellToDig.length > 0 && currentGivens > totalGivens){
-		if(new Date() - st > 2000){
-			break;
+		var k;
+
+		if(difficulty == 'hardest'){
+			k = cellToDig.length - 1;
+		}else{	
+			k = Sudoku.rand(0, cellToDig.length - 1);
 		}
 
-		var k = Sudoku.rand(0, cellToDig.length - 1);
 		var i = cellToDig[k];
-		cellToDig.splice(k, 1);
+		
+		if(difficulty == 'hardest'){
+			cellToDig.pop();
+		}else{
+			cellToDig.splice(k, 1);
+		}
 
 		var tmp = board.cells[i];
 		var unique = true;
@@ -321,7 +481,7 @@ Sudoku.generate = function(board, difficulty){
 			board.givens[i] = j;
 			board.cells[i] = tmp2;
 
-			if(Sudoku.solve(board)){
+			if(Sudoku.quickSolve(board)){
 				unique = false;
 				break;
 			}
@@ -341,10 +501,18 @@ Sudoku.generate = function(board, difficulty){
 
 		board.clear();
 	}
-	var g = 0;
-	for(var m = 0; m < 81; m++){
-		if(board.givens[m]){
-			g += 1;
+
+	if(difficulty == 'hardest'){
+		var id1 = Sudoku.rand(0, 2);
+		var id2 = Sudoku.rand(0, 2);
+		if(id1 != id2){
+			board.columnBlockPropagation(id1, id2);
+		}
+
+		id1 = Sudoku.rand(0, 2);
+		id2 = Sudoku.rand(0, 2);
+		if(id1 != id2){
+			board.rowBlockPropagation(id1, id2);
 		}
 	}
 }
