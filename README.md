@@ -1,3 +1,5 @@
+##### THIS PROJECT IS OUTDATED. I can update the library to today’s standard (using NPM, make it a CommonJS module, Typescript type definition, etc) if someone requests me to. Thank you.
+
 SudokuJS
 ========
 
@@ -55,4 +57,4 @@ To get all the cells' and givens' data from the board, you can do:
 Demo
 ====
 To run the demo, you will need a web server (like Apache in XAMPP or WAMP).
-If you just want to see the code in action, just visit http://lunartrinity.com/game/simplesudoku :)
+If you just want to see the code in action, just visit https://harchcode.github.io/sudokujs/ :)
