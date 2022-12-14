@@ -1,3 +1,5 @@
+# :warning: This project is deprecated in favor of https://github.com/harchcode/simple-sudoku-ts
+
 ##### THIS PROJECT IS OUTDATED. I can update the library to today’s standard (using NPM, make it a CommonJS module, Typescript type definition, etc) if someone requests me to. Thank you.
 
 SudokuJS
